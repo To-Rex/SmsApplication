@@ -20,18 +20,15 @@ class BackService : Service() {
     var count = 0
     //mediaPlayer = MediaPlayer.create(this, R.raw.sound)
     private lateinit var mediaPlayer: MediaPlayer
-
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
-
     override fun onCreate() {
         super.onCreate()
         handler = Handler(Looper.getMainLooper())
         val preferences = getSharedPreferences("Counter", Context.MODE_PRIVATE)
         count = preferences.getInt("count", 0)
     }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         handler.post(object : Runnable {
             override fun run() {
@@ -48,7 +45,6 @@ class BackService : Service() {
         })
         return START_STICKY
     }
-
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)
@@ -60,6 +56,7 @@ class BackService : Service() {
     //val phoneNumbers = emptyArray<String>()
     val phoneNumbers = ArrayList<String>()
     val message = ArrayList<String>()
+    val smsId = ArrayList<Int>()
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -78,7 +75,7 @@ class BackService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        ApiClient.userService.data.enqueue(object : Callback<DataClass> {
+        /*ApiClient.userService.data.enqueue(object : Callback<DataClass> {
             override fun onResponse(call: Call<DataClass>, response: Response<DataClass>) {
                 if (response.isSuccessful) {
                     val data = response.body()
@@ -86,6 +83,7 @@ class BackService : Service() {
                         println("Tel: ${data.data!![i].tel}")
                         phoneNumbers.add(data.data!![i].tel!!)
                         message.add(data.data!![i].zapros!!)
+                        Toast.makeText(this@BackService, "Tel: ${data.data!![i].tel}", Toast.LENGTH_SHORT).show()
                     }
                     println("PhoneNumbers: $phoneNumbers")
                     println("Message: $message")
@@ -97,7 +95,36 @@ class BackService : Service() {
             override fun onFailure(call: Call<DataClass>, t: Throwable) {
                 println("Errors => : ${t.message}")
             }
-        })
+        })*/
+
+        ApiClient.userService.updateStatus("2").enqueue(
+            object : Callback<DataClass> {
+                override fun onResponse(
+                    call: Call<DataClass>,
+                    response: Response<DataClass>
+                ) {
+                    if (response.isSuccessful) {
+                        val data = response.body()
+                        for (i in data?.data?.indices!!) {
+                            println("Tel: ${data.data!![i].tel}")
+                            phoneNumbers.add(data.data!![i].tel!!)
+                            message.add(data.data!![i].zapros!!)
+                            smsId.add(data.data!![i].id)
+                            Toast.makeText(this@BackService, "Tel: ${data.data!![i].tel}", Toast.LENGTH_SHORT).show()
+                        }
+                        updateSmsStatus()
+                        println("PhoneNumbers: $phoneNumbers")
+                        println("Message: $message")
+                    } else {
+                        println("Error ------ : ${response.errorBody()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<DataClass>, t: Throwable) {
+                    println("Errors => : ${t.message}")
+                }
+            }
+        )
 
         /*handler.post(object : Runnable {
             override fun run() {
@@ -109,6 +136,35 @@ class BackService : Service() {
             }
         })*/
         return START_STICKY
+    }
+
+    fun updateSmsStatus(){
+        ApiClient.userService.updateSmsStatus(smsId).enqueue(
+            object : Callback<Any> {
+                override fun onResponse(
+                    call: Call<Any>,
+                    response: Response<Any>
+                ) {
+                    if (response.isSuccessful) {
+                        val data = response.body()
+                        if (data == true) {
+                            println("Success")
+                            Toast.makeText(this@BackService, "Sms Jo`natildi", Toast.LENGTH_SHORT).show()
+                        } else if (data == false) {
+                            println("Error")
+                            Toast.makeText(this@BackService, "Qandaydur Xatolik", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(this@BackService, " Serverda qandaydur Xatolik", Toast.LENGTH_SHORT).show()
+                        println("Error ------ : ${response.errorBody()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<Any>, t: Throwable) {
+                    println("Errors => : ${t.message}")
+                }
+            }
+        )
     }
 
     override fun onDestroy() {

@@ -5,6 +5,7 @@ import com.test.smsapplication.models.DataClass;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
@@ -18,5 +19,5 @@ public interface UserService {
 
     //body   [1,2]
     @PUT("/sms")
-    Call<List<int[]>> updateSmsStatus(List<int[]> body);
+    Call<Object> updateSmsStatus(@Body List<Integer> smsIds);
 }
