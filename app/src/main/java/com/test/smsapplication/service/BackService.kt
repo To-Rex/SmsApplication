@@ -1,14 +1,20 @@
 package com.test.smsapplication.service
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
+import android.telephony.SmsManager
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.test.smsapplication.models.DataClass
 import retrofit2.Call
 import retrofit2.Callback
@@ -50,6 +56,7 @@ class BackService : Service() {
         handler.removeCallbacksAndMessages(null)
     }*/
 
+    private val PERMISSION_SEND_SMS = 1
     private lateinit var handler: Handler
     private var count = 0
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -72,6 +79,11 @@ class BackService : Service() {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CounterWakeLock")
         wakeLock.acquire()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(Activity(), arrayOf(Manifest.permission.SEND_SMS), PERMISSION_SEND_SMS)
+        } else {
+            sendSMS()
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -112,7 +124,7 @@ class BackService : Service() {
                             smsId.add(data.data!![i].id)
                             Toast.makeText(this@BackService, "Tel: ${data.data!![i].tel}", Toast.LENGTH_SHORT).show()
                         }
-                        updateSmsStatus()
+                        sendSMS()
                         println("PhoneNumbers: $phoneNumbers")
                         println("Message: $message")
                     } else {
@@ -137,7 +149,6 @@ class BackService : Service() {
         })*/
         return START_STICKY
     }
-
     fun updateSmsStatus(){
         ApiClient.userService.updateSmsStatus(smsId).enqueue(
             object : Callback<Any> {
@@ -166,7 +177,23 @@ class BackService : Service() {
             }
         )
     }
+    private fun sendSMS() {
+        val smsManager = SmsManager.getDefault()
+        for (phoneNumber in phoneNumbers) {
+            smsManager.sendTextMessage(phoneNumber, null, message[phoneNumbers.indexOf(phoneNumber)], null, null)
+        }
+        updateSmsStatus()
+    }
 
+    /*fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        if (requestCode == PERMISSION_SEND_SMS) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                sendSMS()
+            } else {
+                Toast.makeText(this, "Permission to send SMS messages was denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }*/
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)
