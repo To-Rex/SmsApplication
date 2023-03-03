@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">SmsApplication</string>
+    <string name="title_activity_sample">Sample</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="sms">Sms</string>
+    <string name="yuborilganlar">Yuborilganlar</string>
+    <string name="arxiv">Arxiv</string>
+    <string name="sozlash">Sozlash</string>
+</resources>
