@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextTextPersonName"
+        android:id="@+id/ediSetIpAdress"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginStart="15dp"
@@ -37,16 +37,16 @@
         tools:ignore="Autofill" />
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/btnSetAdd"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginEnd="15dp"
         android:background="@drawable/buttons_back"
         android:src="@drawable/baseline_add"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextTextPersonName"
+        app:layout_constraintBottom_toBottomOf="@+id/ediSetIpAdress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/editTextTextPersonName"
+        app:layout_constraintTop_toTopOf="@+id/ediSetIpAdress"
         android:contentDescription="TODO"
         tools:ignore="ContentDescription,HardcodedText" />
 
@@ -58,18 +58,19 @@
         app:layout_constraintGuide_percent="0.82" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
         android:layout_marginTop="20dp"
         android:background="@drawable/edit_text_back"
+        android:gravity="center"
+        android:orientation="vertical"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName">
+        app:layout_constraintTop_toBottomOf="@+id/ediSetIpAdress">
 
         <Switch
-            android:id="@+id/switch1"
+            android:id="@+id/setSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -84,14 +85,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
             android:text="@string/avtoomatik_ishlash"
             android:textColor="@color/black"
             android:textSize="20sp"
-            android:layout_marginBottom="20dp"
             app:layout_constraintEnd_toEndOf="@+id/view"
             app:layout_constraintStart_toStartOf="@+id/view"
-            app:layout_constraintTop_toBottomOf="@+id/switch1" />
+            app:layout_constraintTop_toBottomOf="@+id/setSwitch" />
     </LinearLayout>
+
+    <ListView
+        android:id="@+id/listSettings"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
