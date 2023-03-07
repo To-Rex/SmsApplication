@@ -14,4 +14,5 @@
     <string name="sms_limt">Sms Limt</string>
     <string name="yangi_smslar">Yangi Smslar</string>
     <string name="smslarni_jo_natish">Smslarni jo`natish</string>
+    <string name="serverni_yangilash">Serverni yangilash</string>
 </resources>

@@ -16,7 +16,7 @@ class Sample : AppCompatActivity() {
         setContentView(R.layout.activity_sample)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment_activity_sample)
-        startService(Intent(applicationContext, BackService::class.java))
+        //startService(Intent(applicationContext, BackService::class.java))
 
         val appBarConfiguration = AppBarConfiguration(
             setOf(
