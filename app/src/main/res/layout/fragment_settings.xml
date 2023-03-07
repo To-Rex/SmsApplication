@@ -8,11 +8,12 @@
 
     <TextView
         android:id="@+id/text_notifications"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:textSize="19sp"
         android:text="@string/ip_address"
-        android:textAlignment="center"
-        android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -40,7 +41,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginEnd="15dp"
-        android:background="@drawable/button_back"
+        android:background="@drawable/buttons_back"
         android:src="@drawable/baseline_add"
         app:layout_constraintBottom_toBottomOf="@+id/editTextTextPersonName"
         app:layout_constraintEnd_toEndOf="parent"
@@ -56,15 +57,41 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.82" />
 
-    <View
-        android:id="@+id/view"
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="50dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
         android:background="@drawable/edit_text_back"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName">
+
+        <Switch
+            android:id="@+id/switch1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/purple_700"
+            android:backgroundTintMode="multiply"
+            app:layout_constraintEnd_toEndOf="@+id/view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/view"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/avtoomatik_ishlash"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintEnd_toEndOf="@+id/view"
+            app:layout_constraintStart_toStartOf="@+id/view"
+            app:layout_constraintTop_toBottomOf="@+id/switch1" />
+    </LinearLayout>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
@@ -80,24 +107,5 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.96"/>
 
-    <Switch
-        android:id="@+id/switch1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/view"
-        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/avtoomatik_ishlash"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:layout_marginTop="10dp"
-        app:layout_constraintEnd_toEndOf="@+id/view"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toBottomOf="@+id/switch1" />
 </androidx.constraintlayout.widget.ConstraintLayout>
