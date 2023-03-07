@@ -25,13 +25,13 @@
             android:layout_gravity="center"
             android:orientation="vertical">
             <TextView
-                android:id="@+id/tvIme"
+                android:id="@+id/txtItemPhone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/phone"
                 android:textSize="20sp" />
             <TextView
-                android:id="@+id/tvBroj"
+                android:id="@+id/txtItemMessage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:maxLines="1"
