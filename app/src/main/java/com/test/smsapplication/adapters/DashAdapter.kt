@@ -17,11 +17,21 @@ class DashAdapter(private val context: Context, private val itemList: List<Strin
         }
 
         val txtItemMessage = convertView!!.findViewById<TextView>(R.id.txtItemMessage)
-        val txtItemPhone = convertView!!.findViewById<TextView>(R.id.txtItemPhone)
+        val txtItemPhone = convertView.findViewById<TextView>(R.id.txtItemPhone)
         txtItemMessage.text = itemList1[position]
         txtItemPhone.text = itemList[position]
 
-        return convertView!!
+        convertView.setOnClickListener(View.OnClickListener {
+            val dialog = android.app.AlertDialog.Builder(context)
+            dialog.setTitle(itemList[position])
+            dialog.setMessage(itemList1[position])
+            dialog.setPositiveButton("OK"){ dialog, _ ->
+                dialog.dismiss()
+            }
+            dialog.show()
+        })
+
+        return convertView
     }
 
     override fun getItem(position: Int): Any {
