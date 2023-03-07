@@ -3,22 +3,22 @@
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@android:drawable/stat_notify_chat"
+        android:icon="@drawable/sms_icon"
         android:title="@string/sms" />
 
     <item
         android:id="@+id/navigation_dashboard"
-        android:icon="@android:drawable/sym_contact_card"
+        android:icon="@drawable/folder_icon"
         android:title="@string/yuborilganlar" />
 
     <item
         android:id="@+id/navigation_notifications"
-        android:icon="@android:drawable/ic_menu_send"
+        android:icon="@drawable/send_icon"
         android:title="@string/arxiv" />
 
     <item
         android:id="@+id/navigation_notifications1"
-        android:icon="@android:drawable/ic_menu_manage"
+        android:icon="@drawable/settings_icon"
         android:title="@string/sozlash" />
 
 </menu>
