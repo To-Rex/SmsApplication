@@ -13,11 +13,8 @@ import retrofit2.http.Query;
 public interface UserService {
     @GET("/sms")
     Call<DataClass> getData();
-
     @GET("/sms/status")
     Call<DataClass> updateStatus(@Query("status") String status);
-
-    //body   [1,2]
     @PUT("/sms")
     Call<Object> updateSmsStatus(@Body List<Integer> smsIds);
 }

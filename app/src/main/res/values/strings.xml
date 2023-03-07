@@ -8,4 +8,10 @@
     <string name="yuborilganlar">Yuborilganlar</string>
     <string name="arxiv">Arxiv</string>
     <string name="sozlash">Sozlash</string>
+    <string name="ip_address">Ip Address</string>
+    <string name="add_ip_address">Add IP Address</string>
+    <string name="avtoomatik_ishlash">Avtoomatik ishlash</string>
+    <string name="sms_limt">Sms Limt</string>
+    <string name="yangi_smslar">Yangi Smslar</string>
+    <string name="smslarni_jo_natish">Smslarni jo`natish</string>
 </resources>
