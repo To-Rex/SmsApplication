@@ -63,6 +63,7 @@ class SettingsFragment : Fragment() {
         listSettings?.adapter = null
         sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
         val data = sharedPreferences?.getString("ipAddress", "").toString()
+        println(data)
         if (data == ""){
             Toast.makeText(activity,"No data", Toast.LENGTH_SHORT).show()
             return
@@ -82,7 +83,6 @@ class SettingsFragment : Fragment() {
             }
         }
         adapter = SetAdapter(activity!!,verList, linkList)
-        //val adapter = ArrayAdapter(activity!!, android.R.layout.simple_list_item_1, listDat)
         listSettings?.adapter = adapter
     }
 }
