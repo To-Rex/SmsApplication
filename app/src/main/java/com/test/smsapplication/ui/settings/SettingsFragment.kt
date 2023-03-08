@@ -13,6 +13,8 @@ import android.widget.ListView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.test.smsapplication.R
+import com.test.smsapplication.adapters.DashAdapter
+import com.test.smsapplication.adapters.SetAdapter
 
 class SettingsFragment : Fragment() {
 
@@ -21,6 +23,10 @@ class SettingsFragment : Fragment() {
     var sharedPreferences: SharedPreferences? = null
     var listSettings: ListView? = null
     var data = ""
+
+    var adapter: SetAdapter? = null
+    var linkList = ArrayList<String>()
+    var verList = ArrayList<String>()
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,22 +46,43 @@ class SettingsFragment : Fragment() {
         btnSetAdd?.setOnClickListener {
             //shared preferences list save ip address
             val editor = sharedPreferences?.edit()
-            editor?.putString("ipAddress", data+","+ediSetIpAdress?.text.toString()+"$0")
+            editor?.putString("ipAddress", data+ediSetIpAdress?.text.toString()+"$0,")
             editor?.apply()
+            getData()
         }
+        /*val editor = sharedPreferences?.edit()
+        editor?.clear()
+        editor?.apply()*/
         getData()
         return view
     }
 
     fun getData(){
+        linkList.clear()
+        verList.clear()
+        listSettings?.adapter = null
         sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
-        val listDat: MutableList<String> = mutableListOf()
-        //for spilit "," sharedPreferences data and add list
         val data = sharedPreferences?.getString("ipAddress", "").toString()
-        for (i in data.split(",")){
-            listDat.add(i)
+        if (data == ""){
+            Toast.makeText(activity,"No data", Toast.LENGTH_SHORT).show()
+            return
         }
-        val adapter = ArrayAdapter(activity!!, android.R.layout.simple_list_item_1, listDat)
+        for (i in data.split(",")){
+            if (i == ""){
+                continue
+            }else{
+                linkList.add(i)
+            }
+        }
+        for (i in linkList){
+            if (i == ""){
+                continue
+            }else{
+                verList.add(i.substring(i.length-1,i.length))
+            }
+        }
+        adapter = SetAdapter(activity!!,verList, linkList)
+        //val adapter = ArrayAdapter(activity!!, android.R.layout.simple_list_item_1, listDat)
         listSettings?.adapter = adapter
     }
 }
