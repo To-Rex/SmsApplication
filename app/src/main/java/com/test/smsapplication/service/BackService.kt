@@ -78,7 +78,7 @@ class BackService : Service() {
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CounterWakeLock")
         wakeLock.acquire()
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(Activity(), arrayOf(Manifest.permission.SEND_SMS), PERMISSION_SEND_SMS)
+            ActivityCompat.requestPermissions(this as Activity, arrayOf(Manifest.permission.SEND_SMS), PERMISSION_SEND_SMS)
         } else {
             sendSMS()
         }

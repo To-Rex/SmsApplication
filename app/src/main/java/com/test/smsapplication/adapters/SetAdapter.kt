@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.test.smsapplication.R
 import com.test.smsapplication.ui.settings.SettingsFragment
 
@@ -25,12 +27,13 @@ class SetAdapter(
 
         val txtItemMessage = convertView!!.findViewById<TextView>(R.id.txtItemSettings)
         val imgItemSettings = convertView.findViewById<ImageButton>(R.id.imgItemSettings)
+        val itemSettings = convertView.findViewById<View>(R.id.itemSettings)
+
         if (itemList1[position].contains("$0")) {
             txtItemMessage.text = itemList1[position].replace("$0", "")
         } else {
             txtItemMessage.text = itemList1[position].replace("$1", "")
         }
-
         imgItemSettings.setOnClickListener {
             val editor = context.getSharedPreferences("ipAddress", 0).edit()
             val data = context.getSharedPreferences("ipAddress", 0).getString("ipAddress", "")
@@ -56,8 +59,12 @@ class SetAdapter(
                 println(data1)
                 if (data1?.get(position)?.contains("$0")!!) {
                     data1[position] = data1[position].replace("$0", "$1")
+                    itemSettings.setBackgroundResource(R.drawable.buttons_back)
+                    imgItemSettings.setBackgroundResource(R.drawable.buttons_back)
                 } else {
                     data1[position] = data1[position].replace("$1", "$0")
+                    itemSettings.setBackgroundResource(R.drawable.buttons_back_green)
+                    imgItemSettings.setBackgroundResource(R.drawable.buttons_back_green)
                 }
                 editor.putString("ipAddress", data1.joinToString(","))
                 editor.apply()
@@ -66,7 +73,6 @@ class SetAdapter(
             }
             dialog.show()
         })
-
         return convertView
     }
 

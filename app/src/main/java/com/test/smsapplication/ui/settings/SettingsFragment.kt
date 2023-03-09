@@ -40,9 +40,8 @@ class SettingsFragment : Fragment() {
 
 
         sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
-        //get ip address
-        Toast.makeText(activity,data+ sharedPreferences?.getString("ipAddress", ""), Toast.LENGTH_SHORT).show()
         data = sharedPreferences?.getString("ipAddress", "").toString()
+        
         btnSetAdd?.setOnClickListener {
             //shared preferences list save ip address
             val editor = sharedPreferences?.edit()

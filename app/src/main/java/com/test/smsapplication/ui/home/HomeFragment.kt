@@ -1,22 +1,23 @@
 package com.test.smsapplication.ui.home
-
 import android.annotation.SuppressLint
-import android.content.Intent
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ListView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.google.gson.Gson
 import com.test.smsapplication.R
 import com.test.smsapplication.adapters.DashAdapter
 import com.test.smsapplication.models.DataClass
-import com.test.smsapplication.service.ApiClient
-import com.test.smsapplication.service.BackService
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+
 
 class HomeFragment : Fragment() {
     var phoneList = ArrayList<String>()
@@ -25,6 +26,7 @@ class HomeFragment : Fragment() {
     var homeList: ListView? = null
     var btnHomeNewSms: Button? = null
     var btnHomSendSms: Button? = null
+    var sharedPreferences: SharedPreferences? = null
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,22 +37,21 @@ class HomeFragment : Fragment() {
         homeList = view.findViewById(R.id.homeList)
         btnHomeNewSms = view.findViewById(R.id.btnHomNewSms)
         btnHomSendSms = view.findViewById(R.id.btnHomSendSms)
-
+        //activity?.startService(Intent(activity, BackService::class.java))
         btnHomeNewSms!!.setOnClickListener {
             getData()
         }
         btnHomSendSms!!.setOnClickListener {
-            activity?.startService(Intent(activity, BackService::class.java))
+            //activity?.startService(Intent(activity, BackService::class.java))
         }
         getData()
         return view
     }
-
     private fun getData(){
         homeList!!.adapter = null
         phoneList.clear()
         messageList.clear()
-        ApiClient.userService.updateStatus("2").enqueue(
+        /*ApiClient.userService.updateStatus("2").enqueue(
             object : Callback<DataClass> {
                 override fun onResponse(
                     call: Call<DataClass>,
@@ -73,6 +74,36 @@ class HomeFragment : Fragment() {
                     println("Errors => : ${t.message}")
                 }
             }
-        )
+        )*/
+        sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
+        val data = sharedPreferences?.getString("ipAddress", "")
+        var ipAdress = ""
+        for (i in data?.split(",")?.indices!!) {
+            if (data.split(",")[i].contains("$1")) {
+                ipAdress = data.split(",")[i].replace("$1", "")
+                println(ipAdress)
+                break
+            }else{
+                ipAdress = data[0].toString().replace("$0", "")
+            }
+        }
+        Toast.makeText(activity, data, Toast.LENGTH_SHORT).show()
+        val queue = Volley.newRequestQueue(activity)
+        val url = "${ipAdress}sms/status?status=2"
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            { response ->
+                println("Response is: $response")
+                val gson = Gson()
+                val dataClass = gson.fromJson(response, DataClass::class.java)
+                for (i in dataClass.data?.indices!!) {
+                    phoneList.add(dataClass.data!![i].tel!!)
+                    messageList.add(dataClass.data!![i].zapros!!)
+                }
+                adapter = DashAdapter(activity!!, phoneList, messageList)
+                homeList!!.adapter = adapter
+            },
+            { println("That didn't work!") })
+        queue.add(stringRequest)
     }
 }
