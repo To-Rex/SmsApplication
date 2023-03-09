@@ -1,14 +1,19 @@
 package com.test.smsapplication.ui.home
+import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.telephony.SmsManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
@@ -17,7 +22,7 @@ import com.google.gson.Gson
 import com.test.smsapplication.R
 import com.test.smsapplication.adapters.DashAdapter
 import com.test.smsapplication.models.DataClass
-
+import com.test.smsapplication.service.BackService
 
 class HomeFragment : Fragment() {
     var phoneList = ArrayList<String>()
@@ -27,7 +32,8 @@ class HomeFragment : Fragment() {
     var btnHomeNewSms: Button? = null
     var btnHomSendSms: Button? = null
     var sharedPreferences: SharedPreferences? = null
-    @SuppressLint("MissingInflatedId")
+    val permissionRequest = 101
+    @SuppressLint("MissingInflatedId", "ObsoleteSdkInt", "ServiceCast")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,7 +48,8 @@ class HomeFragment : Fragment() {
             getData()
         }
         btnHomSendSms!!.setOnClickListener {
-            //activity?.startService(Intent(activity, BackService::class.java))
+            //send sms "+998995340313"
+            activity?.startService(Intent(activity, BackService::class.java))
         }
         getData()
         return view
@@ -81,7 +88,6 @@ class HomeFragment : Fragment() {
         for (i in data?.split(",")?.indices!!) {
             if (data.split(",")[i].contains("$1")) {
                 ipAdress = data.split(",")[i].replace("$1", "")
-                println(ipAdress)
                 break
             }else{
                 ipAdress = data[0].toString().replace("$0", "")

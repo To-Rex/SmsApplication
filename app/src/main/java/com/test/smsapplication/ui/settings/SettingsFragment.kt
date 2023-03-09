@@ -23,7 +23,6 @@ class SettingsFragment : Fragment() {
     var sharedPreferences: SharedPreferences? = null
     var listSettings: ListView? = null
     var data = ""
-
     var adapter: SetAdapter? = null
     var linkList = ArrayList<String>()
     var verList = ArrayList<String>()
@@ -41,9 +40,8 @@ class SettingsFragment : Fragment() {
 
         sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
         data = sharedPreferences?.getString("ipAddress", "").toString()
-        
+
         btnSetAdd?.setOnClickListener {
-            //shared preferences list save ip address
             val editor = sharedPreferences?.edit()
             editor?.putString("ipAddress", data+ediSetIpAdress?.text.toString()+"$0,")
             editor?.apply()
@@ -55,8 +53,7 @@ class SettingsFragment : Fragment() {
         getData()
         return view
     }
-
-    fun getData(){
+    private fun getData(){
         linkList.clear()
         verList.clear()
         listSettings?.adapter = null

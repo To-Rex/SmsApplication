@@ -1,20 +1,26 @@
+@file:Suppress("SENSELESS_COMPARISON")
+
 package com.test.smsapplication.service
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
-import android.os.PowerManager
+import android.os.*
 import android.telephony.SmsManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.google.gson.Gson
+import com.test.smsapplication.adapters.DashAdapter
 import com.test.smsapplication.models.DataClass
 import retrofit2.Call
 import retrofit2.Callback
@@ -56,13 +62,14 @@ class BackService : Service() {
         handler.removeCallbacksAndMessages(null)
     }*/
 
-    private val PERMISSION_SEND_SMS = 1
+    private val PERMISSION_SEND_SMS = 101
     private lateinit var handler: Handler
     private var count = 0
     private lateinit var wakeLock: PowerManager.WakeLock
     val phoneNumbers = ArrayList<String>()
     val message = ArrayList<String>()
     val smsId = ArrayList<Int>()
+    var sharedPreferences: SharedPreferences? = null
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -77,10 +84,17 @@ class BackService : Service() {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CounterWakeLock")
         wakeLock.acquire()
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this as Activity, arrayOf(Manifest.permission.SEND_SMS), PERMISSION_SEND_SMS)
-        } else {
+        val permissionCheck =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             sendSMS()
+            //val smsManager: SmsManager = SmsManager.getDefault()
+            //smsManager.sendTextMessage("+998995340313", null, "vaaa nihoyat", null, null)
+        } else {
+            ActivityCompat.requestPermissions(
+                applicationContext as Activity, arrayOf(Manifest.permission.SEND_SMS),
+                PERMISSION_SEND_SMS
+            )
         }
     }
 
@@ -107,7 +121,7 @@ class BackService : Service() {
             }
         })*/
 
-        ApiClient.userService.updateStatus("2").enqueue(
+        /*ApiClient.userService.updateStatus("2").enqueue(
             object : Callback<DataClass> {
                 override fun onResponse(
                     call: Call<DataClass>,
@@ -134,7 +148,42 @@ class BackService : Service() {
                     println("Errors => : ${t.message}")
                 }
             }
-        )
+        )*/
+
+        sharedPreferences = this.getSharedPreferences("ipAddress", 0)
+        val data = sharedPreferences?.getString("ipAddress", "")
+        var ipAdress = ""
+        for (i in data?.split(",")?.indices!!) {
+            if (data.split(",")[i].contains("$1")) {
+                ipAdress = data.split(",")[i].replace("$1", "")
+                println(ipAdress)
+                break
+            }else{
+                ipAdress = data[0].toString().replace("$0", "")
+            }
+        }
+        val queue = Volley.newRequestQueue(this)
+        val url = "${ipAdress}sms/status?status=2"
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            { response ->
+                println("Response is: $response")
+                val gson = Gson()
+                val dataClass = gson.fromJson(response, DataClass::class.java)
+                for (i in dataClass.data?.indices!!) {
+                    println("Tel: ${dataClass.data!![i].tel}")
+                    phoneNumbers.add(dataClass.data!![i].tel!!)
+                    message.add(dataClass.data!![i].zapros!!)
+                    smsId.add(dataClass.data!![i].id)
+                    Toast.makeText(this@BackService, "Tel: ${dataClass.data!![i].tel}", Toast.LENGTH_SHORT).show()
+                }
+                sendSMS()
+                println("PhoneNumbers: $phoneNumbers")
+                println("Message: $message")
+            },
+            { println("That didn't work!") })
+        queue.add(stringRequest)
+
         /*handler.post(object : Runnable {
             override fun run() {
                 count++
@@ -147,7 +196,7 @@ class BackService : Service() {
         return START_STICKY
     }
     private fun updateSmsStatus(){
-        ApiClient.userService.updateSmsStatus(smsId).enqueue(
+        /*ApiClient.userService.updateSmsStatus(smsId).enqueue(
             object : Callback<Any> {
                 override fun onResponse(
                     call: Call<Any>,
@@ -172,12 +221,21 @@ class BackService : Service() {
                     println("Errors => : ${t.message}")
                 }
             }
-        )
+        )*/
+
     }
+    @SuppressLint("ObsoleteSdkInt")
     private fun sendSMS() {
         val smsManager = SmsManager.getDefault()
         for (phoneNumber in phoneNumbers) {
-            smsManager.sendTextMessage(phoneNumber, null, message[phoneNumbers.indexOf(phoneNumber)], null, null)
+            var sendded: Boolean = false
+            //smsManager.sendTextMessage(phoneNumber, null, message[phoneNumbers.indexOf(phoneNumber)], null, null)
+            sendded = smsManager.sendTextMessage(phoneNumber, null, message[phoneNumbers.indexOf(phoneNumber)], null, null) == null
+            if (sendded) {
+                Toast.makeText(this, "Sms Jo`natildi", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Sms Jo`natilmadi xatolik", Toast.LENGTH_SHORT).show()
+            }
         }
         updateSmsStatus()
     }
