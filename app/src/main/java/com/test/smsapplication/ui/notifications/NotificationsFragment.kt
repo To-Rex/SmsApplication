@@ -69,7 +69,7 @@ class NotificationsFragment : Fragment() {
                     ipAddress = data.split(",")[i].split("$1")[0]
                     break
                 }else{
-                    ipAddress = data[0].toString().split("$0")[0]
+                    ipAddress = data.split(",")[0].replace("$0","")
                 }
             }
             txtSetIpAdress?.text = ipAddress

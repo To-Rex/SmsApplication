@@ -96,10 +96,9 @@ class BackService : Service() {
         for (i in data?.split(",")?.indices!!) {
             if (data.split(",")[i].contains("$1")) {
                 ipAdress = data.split(",")[i].replace("$1", "")
-                println(ipAdress)
                 break
             } else {
-                ipAdress = data[0].toString().replace("$0", "")
+                ipAdress = data.split(",")[0].replace("$0","")
             }
         }
         val queue = Volley.newRequestQueue(this)
@@ -179,7 +178,7 @@ class BackService : Service() {
                 println(ipAdress)
                 break
             } else {
-                ipAdress = data[0].toString().replace("$0", "")
+                ipAdress = data.split(",")[0].replace("$0","")
             }
         }
         val queue = Volley.newRequestQueue(this)

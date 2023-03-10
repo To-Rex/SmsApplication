@@ -46,26 +46,6 @@ class SetAdapter(
             dialog.setIcon(android.R.drawable.ic_dialog_alert)
             dialog.setTitle("Bu Ip adresini faollashtirish yoki to'xtatish")
             dialog.setMessage(itemList1[position])
-            /*dialog.setPositiveButton("OK") { dialog, _ ->
-                val editor = context.getSharedPreferences("ipAddress", 0).edit()
-                val data = context.getSharedPreferences("ipAddress", 0).getString("ipAddress", "")
-                val data1 = data?.split(",")?.toMutableList()
-                println(data1)
-                if (data1?.get(position)?.contains("$0")!!) {
-                    data1[position] = data1[position].replace("$0", "$1")
-                    itemSettings.setBackgroundResource(R.drawable.buttons_back)
-                    imgItemSettings.setBackgroundResource(R.drawable.buttons_back)
-                } else {
-                    data1[position] = data1[position].replace("$1", "$0")
-                    itemSettings.setBackgroundResource(R.drawable.buttons_back_green)
-                    imgItemSettings.setBackgroundResource(R.drawable.buttons_back_green)
-                }
-
-                editor.putString("ipAddress", data1.joinToString(","))
-                editor.apply()
-                callback.onEditButtonClicked(position)
-                dialog.dismiss()
-            }*/
             dialog.setPositiveButton("OK") { dialog, _ ->
                 val editor = context.getSharedPreferences("ipAddress", 0).edit()
                 val data = context.getSharedPreferences("ipAddress", 0).getString("ipAddress", "")
@@ -80,13 +60,11 @@ class SetAdapter(
                     itemSettings.setBackgroundResource(R.drawable.buttons_back_green)
                     imgItemSettings.setBackgroundResource(R.drawable.buttons_back_green)
                 }
-                //data1[position] != data1[position].replace("$0", "$1")
                 for (i in 0 until data1.size) {
                     if (data1[i].contains("$1")&&data1[i] != data1[position]) {
                         data1[i] = data1[i].replace("$1", "$0")
                     }
                 }
-
                 editor.putString("ipAddress", data1.joinToString(","))
                 editor.apply()
                 callback.onEditButtonClicked(position)
@@ -96,11 +74,9 @@ class SetAdapter(
                 dialog.dismiss()
             }
             dialog.show()
-
         })
         return convertView
     }
-
     override fun getItem(position: Int): Any {
         return itemList[position]
     }
