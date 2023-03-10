@@ -5,7 +5,7 @@ package com.test.smsapplication.service
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.PendingIntent
+import android.app.Application
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -20,11 +20,9 @@ import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
-import com.test.smsapplication.adapters.DashAdapter
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.test.smsapplication.models.DataClass
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class BackService : Service() {
 
@@ -84,72 +82,14 @@ class BackService : Service() {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CounterWakeLock")
         wakeLock.acquire()
-        val permissionCheck =
-            ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+        val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+        /*if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             sendSMS()
-            //val smsManager: SmsManager = SmsManager.getDefault()
-            //smsManager.sendTextMessage("+998995340313", null, "vaaa nihoyat", null, null)
         } else {
-            ActivityCompat.requestPermissions(
-                applicationContext as Activity, arrayOf(Manifest.permission.SEND_SMS),
-                PERMISSION_SEND_SMS
-            )
-        }
+           ActivityCompat.requestPermissions(applicationContext as Activity, arrayOf(Manifest.permission.SEND_SMS), PERMISSION_SEND_SMS)
+        }*/
     }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        /*ApiClient.userService.data.enqueue(object : Callback<DataClass> {
-            override fun onResponse(call: Call<DataClass>, response: Response<DataClass>) {
-                if (response.isSuccessful) {
-                    val data = response.body()
-                    for (i in data?.data?.indices!!) {
-                        println("Tel: ${data.data!![i].tel}")
-                        phoneNumbers.add(data.data!![i].tel!!)
-                        message.add(data.data!![i].zapros!!)
-                        Toast.makeText(this@BackService, "Tel: ${data.data!![i].tel}", Toast.LENGTH_SHORT).show()
-                    }
-                    println("PhoneNumbers: $phoneNumbers")
-                    println("Message: $message")
-                } else {
-                    println("Error ------ : ${response.errorBody()}")
-                }
-            }
-
-            override fun onFailure(call: Call<DataClass>, t: Throwable) {
-                println("Errors => : ${t.message}")
-            }
-        })*/
-
-        /*ApiClient.userService.updateStatus("2").enqueue(
-            object : Callback<DataClass> {
-                override fun onResponse(
-                    call: Call<DataClass>,
-                    response: Response<DataClass>
-                ) {
-                    if (response.isSuccessful) {
-                        val data = response.body()
-                        for (i in data?.data?.indices!!) {
-                            println("Tel: ${data.data!![i].tel}")
-                            phoneNumbers.add(data.data!![i].tel!!)
-                            message.add(data.data!![i].zapros!!)
-                            smsId.add(data.data!![i].id)
-                            Toast.makeText(this@BackService, "Tel: ${data.data!![i].tel}", Toast.LENGTH_SHORT).show()
-                        }
-                        sendSMS()
-                        println("PhoneNumbers: $phoneNumbers")
-                        println("Message: $message")
-                    } else {
-                        println("Error ------ : ${response.errorBody()}")
-                    }
-                }
-
-                override fun onFailure(call: Call<DataClass>, t: Throwable) {
-                    println("Errors => : ${t.message}")
-                }
-            }
-        )*/
-
         sharedPreferences = this.getSharedPreferences("ipAddress", 0)
         val data = sharedPreferences?.getString("ipAddress", "")
         var ipAdress = ""
@@ -158,12 +98,12 @@ class BackService : Service() {
                 ipAdress = data.split(",")[i].replace("$1", "")
                 println(ipAdress)
                 break
-            }else{
+            } else {
                 ipAdress = data[0].toString().replace("$0", "")
             }
         }
         val queue = Volley.newRequestQueue(this)
-        val url = "${ipAdress}sms/status?status=2"
+        val url = "https://${ipAdress}sms/status?status=2"
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             { response ->
@@ -175,15 +115,48 @@ class BackService : Service() {
                     phoneNumbers.add(dataClass.data!![i].tel!!)
                     message.add(dataClass.data!![i].zapros!!)
                     smsId.add(dataClass.data!![i].id)
-                    Toast.makeText(this@BackService, "Tel: ${dataClass.data!![i].tel}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@BackService,
+                        "Tel: ${dataClass.data!![i].tel}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-                sendSMS()
+                val getPref = sharedPreferences?.getString("smsHistory", "")
+                println("smsHistory: $getPref")
+                //{"message":"Here!!!","success":true,"status":200,"data":[]}
+                //if getPref == null save response to sharedPref else get getPref save response.to json in data
+                var json = ""
+
+                if (getPref == null||getPref == ""||getPref == " ") {
+                    json = response
+                } else {
+                    val gson = Gson()
+                    val dataPerf = gson.fromJson(getPref, DataClass::class.java)
+                    val getRes = gson.fromJson(response, DataClass::class.java)
+                    val jsonArray = JsonArray()
+                    for (i in dataPerf.data?.indices!!) {
+                        jsonArray.add(gson.toJsonTree(dataPerf.data!![i]))
+                    }
+                    for (i in getRes.data?.indices!!) {
+                        jsonArray.add(gson.toJsonTree(getRes.data!![i]))
+                    }
+
+                    val jsonObject = JsonObject()
+                    jsonObject.add("data", jsonArray)
+                    json = jsonObject.toString()
+                    println("json: $json")
+                }
+                //sendSMS()
                 println("PhoneNumbers: $phoneNumbers")
                 println("Message: $message")
+
+                //save to sharedPref
+                val editor = sharedPreferences?.edit()
+                editor?.putString("smsHistory", json)
+                editor?.apply()
             },
             { println("That didn't work!") })
         queue.add(stringRequest)
-
         /*handler.post(object : Runnable {
             override fun run() {
                 count++
@@ -195,42 +168,54 @@ class BackService : Service() {
         })*/
         return START_STICKY
     }
-    private fun updateSmsStatus(){
-        /*ApiClient.userService.updateSmsStatus(smsId).enqueue(
-            object : Callback<Any> {
-                override fun onResponse(
-                    call: Call<Any>,
-                    response: Response<Any>
-                ) {
-                    if (response.isSuccessful) {
-                        val data = response.body()
-                        if (data == true) {
-                            println("Success")
-                            Toast.makeText(this@BackService, "Sms Jo`natildi", Toast.LENGTH_SHORT).show()
-                        } else if (data == false) {
-                            println("Error")
-                            Toast.makeText(this@BackService, "Qandaydur Xatolik", Toast.LENGTH_SHORT).show()
-                        }
-                    } else {
-                        Toast.makeText(this@BackService, " Serverda qandaydur Xatolik", Toast.LENGTH_SHORT).show()
-                        println("Error ------ : ${response.errorBody()}")
-                    }
-                }
 
-                override fun onFailure(call: Call<Any>, t: Throwable) {
-                    println("Errors => : ${t.message}")
-                }
+    private fun updateSmsStatus() {
+        sharedPreferences = this.getSharedPreferences("ipAddress", 0)
+        val data = sharedPreferences?.getString("ipAddress", "")
+        var ipAdress = ""
+        for (i in data?.split(",")?.indices!!) {
+            if (data.split(",")[i].contains("$1")) {
+                ipAdress = data.split(",")[i].replace("$1", "")
+                println(ipAdress)
+                break
+            } else {
+                ipAdress = data[0].toString().replace("$0", "")
             }
-        )*/
+        }
+        val queue = Volley.newRequestQueue(this)
+        val url = "https://${ipAdress}sms"
+        val stringRequest = object : StringRequest(
+            Method.PUT, url,
+            { response ->
+                println("Response is: $response")
+            },
+            { println("That didn't work!") }) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                val gson = Gson()
+                val json = gson.toJson(smsId)
+                return json.toByteArray()
+            }
+        }
+
+        queue.add(stringRequest)
 
     }
+
     @SuppressLint("ObsoleteSdkInt")
     private fun sendSMS() {
         val smsManager = SmsManager.getDefault()
         for (phoneNumber in phoneNumbers) {
-            var sendded: Boolean = false
-            //smsManager.sendTextMessage(phoneNumber, null, message[phoneNumbers.indexOf(phoneNumber)], null, null)
-            sendded = smsManager.sendTextMessage(phoneNumber, null, message[phoneNumbers.indexOf(phoneNumber)], null, null) == null
+            val sendded: Boolean = smsManager.sendTextMessage(
+                phoneNumber,
+                null,
+                message[phoneNumbers.indexOf(phoneNumber)],
+                null,
+                null
+            ) == null
             if (sendded) {
                 Toast.makeText(this, "Sms Jo`natildi", Toast.LENGTH_SHORT).show()
             } else {
@@ -239,6 +224,7 @@ class BackService : Service() {
         }
         updateSmsStatus()
     }
+
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacksAndMessages(null)

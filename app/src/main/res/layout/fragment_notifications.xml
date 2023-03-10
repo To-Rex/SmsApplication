@@ -7,7 +7,7 @@
     tools:context=".ui.notifications.NotificationsFragment">
 
     <TextView
-        android:id="@+id/text_notifications"
+        android:id="@+id/txtSetIpAdress"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -33,7 +33,7 @@
         app:layout_constraintGuide_percent="0.96"/>
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/btnNatUpdate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
@@ -48,7 +48,7 @@
         tools:ignore="TextViewEdits" />
 
     <Button
-        android:id="@+id/button5"
+        android:id="@+id/btnNatClear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
@@ -62,16 +62,16 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         tools:ignore="TextViewEdits" />
 
-    <View
-        android:id="@+id/view4"
+    <ListView
+        android:id="@+id/listNatVIew"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="30dp"
         android:layout_marginBottom="20dp"
         android:background="@drawable/edit_text_back"
-        app:layout_constraintBottom_toTopOf="@+id/button4"
+        app:layout_constraintBottom_toTopOf="@+id/btnNatUpdate"
         app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/text_notifications" />
+        app:layout_constraintTop_toBottomOf="@+id/txtSetIpAdress" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

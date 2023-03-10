@@ -7,7 +7,7 @@
     tools:context=".ui.notifications.NotificationsFragment">
 
     <TextView
-        android:id="@+id/text_notifications"
+        android:id="@+id/txtSetIpAdress"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -33,7 +33,7 @@
         android:hint="@string/add_ip_address"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_notifications"
+        app:layout_constraintTop_toBottomOf="@+id/txtSetIpAdress"
         tools:ignore="Autofill" />
 
     <ImageView

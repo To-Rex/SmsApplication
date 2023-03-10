@@ -17,6 +17,9 @@ class SetAdapter(
     private val itemList: List<String>,
     private val itemList1: List<String>
 ) : BaseAdapter() {
+    private var onItemClickListener: OnItemClickListener? = null
+    public interface OnItemClickListener {
+    }
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         var convertView = convertView
 
@@ -31,9 +34,14 @@ class SetAdapter(
 
         if (itemList1[position].contains("$0")) {
             txtItemMessage.text = itemList1[position].replace("$0", "")
+            itemSettings.setBackgroundResource(R.drawable.buttons_back)
+            imgItemSettings.setBackgroundResource(R.drawable.buttons_back)
         } else {
             txtItemMessage.text = itemList1[position].replace("$1", "")
+            itemSettings.setBackgroundResource(R.drawable.buttons_back_green)
+            imgItemSettings.setBackgroundResource(R.drawable.buttons_back_green)
         }
+
         imgItemSettings.setOnClickListener {
             val editor = context.getSharedPreferences("ipAddress", 0).edit()
             val data = context.getSharedPreferences("ipAddress", 0).getString("ipAddress", "")
@@ -71,7 +79,11 @@ class SetAdapter(
                 notifyDataSetChanged()
                 dialog.dismiss()
             }
+            dialog.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
             dialog.show()
+
         })
         return convertView
     }

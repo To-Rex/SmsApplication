@@ -6,20 +6,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.test.smsapplication.R
-import com.test.smsapplication.adapters.DashAdapter
 import com.test.smsapplication.adapters.SetAdapter
 
 class SettingsFragment : Fragment() {
-
     var ediSetIpAdress: EditText? = null
     var btnSetAdd: ImageView? = null
+    var txtSetIpAdress: TextView? = null
     var sharedPreferences: SharedPreferences? = null
     var listSettings: ListView? = null
     var data = ""
@@ -36,22 +35,41 @@ class SettingsFragment : Fragment() {
         ediSetIpAdress = view.findViewById(R.id.ediSetIpAdress)
         btnSetAdd = view.findViewById(R.id.btnSetAdd)
         listSettings = view.findViewById(R.id.listSettings)
-
+        txtSetIpAdress = view.findViewById(R.id.txtSetIpAdress)
 
         sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
         data = sharedPreferences?.getString("ipAddress", "").toString()
-
+        getPref()
         btnSetAdd?.setOnClickListener {
             val editor = sharedPreferences?.edit()
             editor?.putString("ipAddress", data+ediSetIpAdress?.text.toString()+"$0,")
             editor?.apply()
             getData()
         }
-        /*val editor = sharedPreferences?.edit()
-        editor?.clear()
-        editor?.apply()*/
         getData()
         return view
+    }
+
+    fun getPref(){
+        sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
+        data = sharedPreferences?.getString("ipAddress", "").toString()
+        var ipAddress = ""
+        if (data== "" || data==" ") {
+            Toast.makeText(activity, "bunday Ip adress mavjud emas", Toast.LENGTH_SHORT).show()
+            return
+        }
+        println(data)
+        for (i in data.split(",").indices) {
+            println(data[i].toString())
+            if (data.split(",")[i].contains("$1")) {
+                ipAddress = data.split(",")[i].split("$1")[0]
+                break
+            }else{
+                ipAddress = data[0].toString().split("$0")[0]
+                println("======"+ipAddress)
+            }
+        }
+        txtSetIpAdress?.text = ipAddress
     }
     private fun getData(){
         linkList.clear()
@@ -61,7 +79,7 @@ class SettingsFragment : Fragment() {
         val data = sharedPreferences?.getString("ipAddress", "").toString()
         println(data)
         if (data == ""){
-            Toast.makeText(activity,"No data", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity,"Ip adress mavjud emas",Toast.LENGTH_SHORT).show()
             return
         }
         for (i in data.split(",")){
@@ -80,5 +98,10 @@ class SettingsFragment : Fragment() {
         }
         adapter = SetAdapter(activity!!,verList, linkList)
         listSettings?.adapter = adapter
+        getPref()
+    }
+
+    fun updateList() {
+
     }
 }

@@ -1,19 +1,15 @@
 package com.test.smsapplication.ui.home
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.telephony.SmsManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
@@ -25,14 +21,14 @@ import com.test.smsapplication.models.DataClass
 import com.test.smsapplication.service.BackService
 
 class HomeFragment : Fragment() {
-    var phoneList = ArrayList<String>()
-    var messageList = ArrayList<String>()
-    var adapter: DashAdapter? = null
-    var homeList: ListView? = null
-    var btnHomeNewSms: Button? = null
-    var btnHomSendSms: Button? = null
-    var sharedPreferences: SharedPreferences? = null
-    val permissionRequest = 101
+    private var phoneList = ArrayList<String>()
+    private var messageList = ArrayList<String>()
+    private var adapter: DashAdapter? = null
+    private var homeList: ListView? = null
+    private var btnHomeNewSms: Button? = null
+    private var btnHomSendSms: Button? = null
+    private var txtHomipAdress: TextView? = null
+    private var sharedPreferences: SharedPreferences? = null
     @SuppressLint("MissingInflatedId", "ObsoleteSdkInt", "ServiceCast")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,6 +39,7 @@ class HomeFragment : Fragment() {
         homeList = view.findViewById(R.id.homeList)
         btnHomeNewSms = view.findViewById(R.id.btnHomNewSms)
         btnHomSendSms = view.findViewById(R.id.btnHomSendSms)
+        txtHomipAdress = view.findViewById(R.id.txtHomipAdress)
         //activity?.startService(Intent(activity, BackService::class.java))
         btnHomeNewSms!!.setOnClickListener {
             getData()
@@ -58,44 +55,30 @@ class HomeFragment : Fragment() {
         homeList!!.adapter = null
         phoneList.clear()
         messageList.clear()
-        /*ApiClient.userService.updateStatus("2").enqueue(
-            object : Callback<DataClass> {
-                override fun onResponse(
-                    call: Call<DataClass>,
-                    response: Response<DataClass>
-                ) {
-                    if (response.isSuccessful) {
-                        val data = response.body()
-                        for (i in data?.data?.indices!!) {
-                            phoneList.add(data.data!![i].tel!!)
-                            messageList.add(data.data!![i].zapros!!)
-                        }
-                        adapter = DashAdapter(activity!!, phoneList, messageList)
-                        homeList!!.adapter = adapter
-                    } else {
-                        println("Error ------ : ${response.errorBody()}")
-                    }
-                }
-
-                override fun onFailure(call: Call<DataClass>, t: Throwable) {
-                    println("Errors => : ${t.message}")
-                }
-            }
-        )*/
         sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
         val data = sharedPreferences?.getString("ipAddress", "")
-        var ipAdress = ""
-        for (i in data?.split(",")?.indices!!) {
+        var ipAddress = ""
+        if (data == null||data== ""||data==" ") {
+            Toast.makeText(activity, "IP адрес не указан", Toast.LENGTH_SHORT).show()
+            return
+        }
+        println(data.toString())
+        Toast.makeText(activity, data.toString(), Toast.LENGTH_SHORT).show()
+        for (i in data.split(",").indices) {
+            println(data[i].toString())
             if (data.split(",")[i].contains("$1")) {
-                ipAdress = data.split(",")[i].replace("$1", "")
+                ipAddress = data.split(",")[i].split("$1")[0]
                 break
             }else{
-                ipAdress = data[0].toString().replace("$0", "")
+                ipAddress = data[0].toString().split("$0")[0]
+                println("======"+ipAddress)
             }
         }
-        Toast.makeText(activity, data, Toast.LENGTH_SHORT).show()
+        txtHomipAdress!!.text = ipAddress
         val queue = Volley.newRequestQueue(activity)
-        val url = "${ipAdress}sms/status?status=2"
+        println(ipAddress)
+        val url = "https://${ipAddress}sms/status?status=2"
+        //val url = "https://api.teda.uz:77/sms/status?status=2"
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             { response ->
