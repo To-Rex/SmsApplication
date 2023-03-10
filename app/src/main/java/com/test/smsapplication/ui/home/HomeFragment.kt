@@ -83,9 +83,11 @@ class HomeFragment : Fragment() {
                 println("Response is: $response")
                 val gson = Gson()
                 val dataClass = gson.fromJson(response, DataClass::class.java)
+                //var counter = 0
                 for (i in dataClass.data?.indices!!) {
                     phoneList.add(dataClass.data!![i].tel!!)
                     messageList.add(dataClass.data!![i].zapros!!)
+                    //counter++
                 }
                 adapter = DashAdapter(activity!!, phoneList, messageList)
                 homeList!!.adapter = adapter

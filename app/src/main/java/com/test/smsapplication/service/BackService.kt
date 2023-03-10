@@ -122,10 +122,7 @@ class BackService : Service() {
                 }
                 val getPref = sharedPreferences?.getString("smsHistory", "")
                 println("smsHistory: $getPref")
-                //{"message":"Here!!!","success":true,"status":200,"data":[]}
-                //if getPref == null save response to sharedPref else get getPref save response.to json in data
                 var json = ""
-
                 if (getPref == null||getPref == ""||getPref == " ") {
                     json = response
                 } else {
