@@ -6,20 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.test.smsapplication.R
-import com.test.smsapplication.ui.settings.SettingsFragment
 
 class SetAdapter(
     private val context: Context,
     private val itemList: List<String>,
-    private val itemList1: List<String>
+    private val itemList1: List<String>,
+    private val callback: MyAdapterCallback
 ) : BaseAdapter() {
-    private var onItemClickListener: OnItemClickListener? = null
-    public interface OnItemClickListener {
-    }
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         var convertView = convertView
 
@@ -43,17 +38,7 @@ class SetAdapter(
         }
 
         imgItemSettings.setOnClickListener {
-            val editor = context.getSharedPreferences("ipAddress", 0).edit()
-            val data = context.getSharedPreferences("ipAddress", 0).getString("ipAddress", "")
-            val data1: MutableList<String> = if (data?.contains("$0,")!!) {
-                data.split("$0,").toMutableList()
-            } else {
-                data.split("$1,").toMutableList()
-            }
-            data1.removeAt(position)
-            editor.putString("ipAddress", data1.joinToString("$0,"))
-            editor.apply()
-            notifyDataSetChanged()
+            callback.onDeleteButtonClicked(position)
         }
 
         convertView.setOnClickListener(View.OnClickListener {
@@ -76,7 +61,7 @@ class SetAdapter(
                 }
                 editor.putString("ipAddress", data1.joinToString(","))
                 editor.apply()
-                notifyDataSetChanged()
+                callback.onEditButtonClicked(position)
                 dialog.dismiss()
             }
             dialog.setNegativeButton("Cancel") { dialog, _ ->
@@ -99,4 +84,9 @@ class SetAdapter(
     override fun getCount(): Int {
         return itemList.size
     }
+}
+
+interface MyAdapterCallback {
+    fun onDeleteButtonClicked(position: Int)
+    fun onEditButtonClicked(position: Int)
 }

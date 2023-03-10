@@ -13,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.test.smsapplication.R
+import com.test.smsapplication.adapters.MyAdapterCallback
 import com.test.smsapplication.adapters.SetAdapter
 
 class SettingsFragment : Fragment() {
@@ -46,6 +47,20 @@ class SettingsFragment : Fragment() {
             editor?.apply()
             getData()
         }
+        listSettings?.setOnItemClickListener { parent, view, position, id ->
+            Toast.makeText(activity, "clicked$position", Toast.LENGTH_SHORT).show()
+        }
+
+        object : MyAdapterCallback {
+            override fun onDeleteButtonClicked(position: Int) {
+                Toast.makeText(activity, "clicked$position", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onEditButtonClicked(position: Int) {
+                Toast.makeText(activity, "clicked$position", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         getData()
         return view
     }
@@ -96,12 +111,28 @@ class SettingsFragment : Fragment() {
                 verList.add(i.substring(i.length-1,i.length))
             }
         }
-        adapter = SetAdapter(activity!!,verList, linkList)
+        adapter = SetAdapter(activity!!,verList, linkList, object : MyAdapterCallback {
+            override fun onDeleteButtonClicked(position: Int) {
+                Toast.makeText(activity, "clicked$position", Toast.LENGTH_SHORT).show()
+                val editor = context?.getSharedPreferences("ipAddress", 0)?.edit()
+                val data = context?.getSharedPreferences("ipAddress", 0)?.getString("ipAddress", "")
+                val data1: MutableList<String> = if (data?.contains("$0,")!!) {
+                    data.split("$0,").toMutableList()
+                } else {
+                    data.split("$1,").toMutableList()
+                }
+                data1.removeAt(position)
+                editor!!.putString("ipAddress", data1.joinToString("$0,"))
+                editor.apply()
+                getData()
+            }
+
+            override fun onEditButtonClicked(position: Int) {
+                getData()
+            }
+        })
         listSettings?.adapter = adapter
         getPref()
     }
 
-    fun updateList() {
-
-    }
 }
