@@ -71,14 +71,12 @@ class HomeFragment : Fragment() {
                 break
             }else{
                 ipAddress = data[0].toString().split("$0")[0]
-                println("======"+ipAddress)
             }
         }
         txtHomipAdress!!.text = ipAddress
         val queue = Volley.newRequestQueue(activity)
         println(ipAddress)
         val url = "https://${ipAddress}sms/status?status=2"
-        //val url = "https://api.teda.uz:77/sms/status?status=2"
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             { response ->
