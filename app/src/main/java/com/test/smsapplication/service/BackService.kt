@@ -60,7 +60,6 @@ class BackService : Service() {
         handler.removeCallbacksAndMessages(null)
     }*/
 
-    private val PERMISSION_REQUEST_SEND_SMS = 123
     private lateinit var handler: Handler
     private var count = 0
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -78,7 +77,6 @@ class BackService : Service() {
         handler = Handler(Looper.getMainLooper())
         val preferences = getSharedPreferences("Counter", Context.MODE_PRIVATE)
         count = preferences.getInt("count", 0)
-
     }
 
     @SuppressLint("InvalidWakeLockTag", "WakelockTimeout")
@@ -147,7 +145,6 @@ class BackService : Service() {
                     println("PhoneNumbers: $phoneNumbers")
                     println("Message: $message")
 
-
                     //save to sharedPref
                     val editor = sharedPreferences?.edit()
                     editor?.putString("smsHistory", json)
@@ -157,7 +154,7 @@ class BackService : Service() {
             queue.add(stringRequest)
             sendSMS()
         }
-        
+
         /*handler.post(object : Runnable {
             override fun run() {
                 count++
@@ -202,7 +199,6 @@ class BackService : Service() {
                 return json.toByteArray()
             }
         }
-
         queue.add(stringRequest)
 
     }
@@ -211,6 +207,7 @@ class BackService : Service() {
     private fun sendSMS() {
         val smsManager = SmsManager.getDefault()
         for (phoneNumber in phoneNumbers) {
+            Thread.sleep(3000)
             val sendded: Boolean = smsManager.sendTextMessage(
                 phoneNumber,
                 null,
