@@ -60,7 +60,7 @@ class BackService : Service() {
         handler.removeCallbacksAndMessages(null)
     }*/
 
-    private val PERMISSION_SEND_SMS = 101
+    private val PERMISSION_REQUEST_SEND_SMS = 123
     private lateinit var handler: Handler
     private var count = 0
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -79,17 +79,14 @@ class BackService : Service() {
         val preferences = getSharedPreferences("Counter", Context.MODE_PRIVATE)
         count = preferences.getInt("count", 0)
 
+    }
+
+    @SuppressLint("InvalidWakeLockTag", "WakelockTimeout")
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CounterWakeLock")
         wakeLock.acquire()
-        val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
-        /*if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            sendSMS()
-        } else {
-           ActivityCompat.requestPermissions(applicationContext as Activity, arrayOf(Manifest.permission.SEND_SMS), PERMISSION_SEND_SMS)
-        }*/
-    }
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         sharedPreferences = this.getSharedPreferences("ipAddress", 0)
         val data = sharedPreferences?.getString("ipAddress", "")
         var ipAdress = ""
@@ -98,61 +95,69 @@ class BackService : Service() {
                 ipAdress = data.split(",")[i].replace("$1", "")
                 break
             } else {
-                ipAdress = data.split(",")[0].replace("$0","")
+                ipAdress = data.split(",")[0].replace("$0", "")
             }
         }
-        val queue = Volley.newRequestQueue(this)
-        val url = "https://${ipAdress}sms/status?status=2"
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            { response ->
-                println("Response is: $response")
-                val gson = Gson()
-                val dataClass = gson.fromJson(response, DataClass::class.java)
-                for (i in dataClass.data?.indices!!) {
-                    println("Tel: ${dataClass.data!![i].tel}")
-                    phoneNumbers.add(dataClass.data!![i].tel!!)
-                    message.add(dataClass.data!![i].zapros!!)
-                    smsId.add(dataClass.data!![i].id)
-                    Toast.makeText(
-                        this@BackService,
-                        "Tel: ${dataClass.data!![i].tel}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                val getPref = sharedPreferences?.getString("smsHistory", "")
-                println("smsHistory: $getPref")
-                var json = ""
-                if (getPref == null||getPref == ""||getPref == " ") {
-                    json = response
-                } else {
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(applicationContext as Activity, arrayOf(Manifest.permission.SEND_SMS), 1)
+        } else {
+            val queue = Volley.newRequestQueue(this)
+            val url = "https://${ipAdress}sms/status?status=2"
+            val stringRequest = StringRequest(
+                Request.Method.GET, url,
+                { response ->
+                    println("Response is: $response")
                     val gson = Gson()
-                    val dataPerf = gson.fromJson(getPref, DataClass::class.java)
-                    val getRes = gson.fromJson(response, DataClass::class.java)
-                    val jsonArray = JsonArray()
-                    for (i in dataPerf.data?.indices!!) {
-                        jsonArray.add(gson.toJsonTree(dataPerf.data!![i]))
+                    val dataClass = gson.fromJson(response, DataClass::class.java)
+                    for (i in dataClass.data?.indices!!) {
+                        println("Tel: ${dataClass.data!![i].tel}")
+                        phoneNumbers.add(dataClass.data!![i].tel!!)
+                        message.add(dataClass.data!![i].zapros!!)
+                        smsId.add(dataClass.data!![i].id)
+                        Toast.makeText(
+                            this@BackService,
+                            "Tel: ${dataClass.data!![i].tel}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
-                    for (i in getRes.data?.indices!!) {
-                        jsonArray.add(gson.toJsonTree(getRes.data!![i]))
+                    val getPref = sharedPreferences?.getString("smsHistory", "")
+                    println("smsHistory: $getPref")
+                    var json = ""
+                    if (getPref == null || getPref == "" || getPref == " ") {
+                        json = response
+                    } else {
+                        val gson = Gson()
+                        val dataPerf = gson.fromJson(getPref, DataClass::class.java)
+                        val getRes = gson.fromJson(response, DataClass::class.java)
+                        val jsonArray = JsonArray()
+                        for (i in dataPerf.data?.indices!!) {
+                            jsonArray.add(gson.toJsonTree(dataPerf.data!![i]))
+                        }
+                        for (i in getRes.data?.indices!!) {
+                            jsonArray.add(gson.toJsonTree(getRes.data!![i]))
+                        }
+
+                        val jsonObject = JsonObject()
+                        jsonObject.add("data", jsonArray)
+                        json = jsonObject.toString()
+                        println("json: $json")
                     }
+                    sendSMS()
+                    println("PhoneNumbers: $phoneNumbers")
+                    println("Message: $message")
 
-                    val jsonObject = JsonObject()
-                    jsonObject.add("data", jsonArray)
-                    json = jsonObject.toString()
-                    println("json: $json")
-                }
-                //sendSMS()
-                println("PhoneNumbers: $phoneNumbers")
-                println("Message: $message")
 
-                //save to sharedPref
-                val editor = sharedPreferences?.edit()
-                editor?.putString("smsHistory", json)
-                editor?.apply()
-            },
-            { println("That didn't work!") })
-        queue.add(stringRequest)
+                    //save to sharedPref
+                    val editor = sharedPreferences?.edit()
+                    editor?.putString("smsHistory", json)
+                    editor?.apply()
+                },
+                { println("That didn't work!") })
+            queue.add(stringRequest)
+            sendSMS()
+        }
+        
         /*handler.post(object : Runnable {
             override fun run() {
                 count++
@@ -162,6 +167,7 @@ class BackService : Service() {
                 handler.postDelayed(this, 2000)
             }
         })*/
+
         return START_STICKY
     }
 
@@ -175,7 +181,7 @@ class BackService : Service() {
                 println(ipAdress)
                 break
             } else {
-                ipAdress = data.split(",")[0].replace("$0","")
+                ipAdress = data.split(",")[0].replace("$0", "")
             }
         }
         val queue = Volley.newRequestQueue(this)

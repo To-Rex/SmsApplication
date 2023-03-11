@@ -1,8 +1,12 @@
 package com.test.smsapplication.ui.home
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.telephony.SmsManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +14,8 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
@@ -45,8 +51,21 @@ class HomeFragment : Fragment() {
             getData()
         }
         btnHomSendSms!!.setOnClickListener {
-            //send sms "+998995340313"
+            if (phoneList.size == 0) {
+                Toast.makeText(activity, "SMS yuborish uchun telefon raqam va xabar kiriting", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             activity?.startService(Intent(activity, BackService::class.java))
+        }
+        if (context?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.SEND_SMS) } != PackageManager.PERMISSION_GRANTED) {
+            val alertDialog = android.app.AlertDialog.Builder(context)
+            alertDialog.setTitle("Ruxsat")
+            alertDialog.setMessage("Ushbu ilovaga Sozlamalar->Izohlar->SMS yuborishga ruxsat berish kerak")
+            alertDialog.setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            alertDialog.show()
+            ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.SEND_SMS), 1)
         }
         getData()
         return view
@@ -59,7 +78,7 @@ class HomeFragment : Fragment() {
         val data = sharedPreferences?.getString("ipAddress", "")
         var ipAddress = ""
         if (data == null||data== ""||data==" ") {
-            Toast.makeText(activity, "IP адрес не указан", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "iltimos IP manzilni kiriting", Toast.LENGTH_SHORT).show()
             return
         }
         println(data.toString())
