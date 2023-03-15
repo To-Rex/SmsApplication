@@ -3,7 +3,6 @@
 package com.test.smsapplication.service
 
 import android.Manifest
-import android.R.attr.delay
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Service
@@ -33,12 +32,15 @@ class BackService : Service() {
     private val message = ArrayList<String>()
     val smsId = ArrayList<Int>()
     private var sharedPreferences: SharedPreferences? = null
+    private var mediaPlayer: MediaPlayer? = null
 
     var totalElements = 0
     var totalPages = 0
-    var size = 50
-    var page = 1
+    var size = 150
+    var page = 0
     var ipLink = ""
+    var phone = ""
+    var url = ""
     private var vibrator: Vibrator? = null
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -71,7 +73,7 @@ class BackService : Service() {
                 ipLink = data.split(",")[0].replace("$0", "")
             }
         }
-        val phone = sharedPreferences?.getString("phone", "").toString()
+        phone = sharedPreferences?.getString("phone", "").toString()
         if (phone.isEmpty() || phone == " ") {
             Toast.makeText(this, "Telefon raqamni kiriting!", Toast.LENGTH_SHORT).show()
             return START_NOT_STICKY
@@ -91,8 +93,8 @@ class BackService : Service() {
                 1
             )
         } else {
-            val url =
-                "${ipLink}api/sms/status?page=0&size=$size&employeePhone=%2B998$phone&status=2"
+            url =
+                "${ipLink}api/sms/status?page=$page&size=$size&employeePhone=%2B998$phone&status=2"
             getResponse(url)
         }
 
@@ -109,6 +111,7 @@ class BackService : Service() {
         return START_STICKY
     }
 
+    @SuppressLint("SuspiciousIndentation")
     private fun getResponse(url: String) {
         phoneNumbers.clear()
         message.clear()
@@ -120,7 +123,6 @@ class BackService : Service() {
             val stringRequest = StringRequest(
                 Request.Method.GET, url,
                 { response ->
-                    //println("Response is: $response")
                     val gson = Gson()
                     val dataClass = gson.fromJson(response, DataClass::class.java)
                     for (i in dataClass.data?.content?.indices!!) {
@@ -135,14 +137,16 @@ class BackService : Service() {
                         }
                     }
                     val getRes = gson.fromJson(response, DataClass::class.java)
-                    totalElements = getRes.data?.totalElements!!
+                    totalElements = getRes.data?.numberOfElements!!
                     totalPages = getRes.data?.totalPages!!
+                    println("totalPages: $totalPages")
                     size = getRes.data?.size!!
                     page = getRes.data?.number!!
                     val editors = sharedPreferences?.edit()
                     editors?.putString("smsLimit", smsLimit)
                     editors?.apply()
-                    sendSMS()
+                    if (phoneNumbers.isNotEmpty() || message.isNotEmpty() || smsId.isNotEmpty())
+                        sendSMS()
                 },
                 { println("That didn't work!") })
             queue.add(stringRequest)
@@ -156,58 +160,11 @@ class BackService : Service() {
     private fun sendSMS() {
         sharedPreferences = this.getSharedPreferences("ipAddress", 0)
         val smsManager = SmsManager.getDefault()
-        /*for (i in phoneNumbers) {
-            Handler(Looper.getMainLooper()).postDelayed(
-                {
-                    if (message[phoneNumbers.indexOf(i)].length > 140) {
-                        println("Message: 1111111112121212121212121212112121212121211211212")
-                        val parts = smsManager.divideMessage(message[phoneNumbers.indexOf(i)])
-                        Toast.makeText(this, "Message: $parts", Toast.LENGTH_SHORT).show()
-                        smsManager.sendMultipartTextMessage(
-                            phoneNumbers[phoneNumbers.indexOf(i)],
-                            null,
-                            parts,
-                            null,
-                            null
-                        )
-                        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            vibrator!!.vibrate(
-                                VibrationEffect.createOneShot(
-                                    100,
-                                    VibrationEffect.DEFAULT_AMPLITUDE
-                                )
-                            )
-                        } else {
-                            vibrator!!.vibrate(100)
-                        }
-                    } else {
-                        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            vibrator!!.vibrate(
-                                VibrationEffect.createOneShot(
-                                    100,
-                                    VibrationEffect.DEFAULT_AMPLITUDE
-                                )
-                            )
-                        } else {
-                            vibrator!!.vibrate(100)
-                        }
-                        smsManager.sendTextMessage(
-                            phoneNumbers[phoneNumbers.indexOf(i)],
-                            null,
-                            message[phoneNumbers.indexOf(i)],
-                            null,
-                            null
-                        )
-                    }
-                }, 3000
-            )
-
-        }*/
         for (i in message) {
-            Handler(Looper.getMainLooper()).postDelayed(
-                {
+            println("Message: $i")
+            println("Phone: ${phoneNumbers[message.indexOf(i)]}")
+            if (i.isNotEmpty() || i != " "|| i != null) {
+                Handler(Looper.getMainLooper()).postDelayed({
                     if (i.length > 140) {
                         val parts = smsManager.divideMessage(i)
                         Toast.makeText(this, "Message: $parts", Toast.LENGTH_SHORT).show()
@@ -243,15 +200,19 @@ class BackService : Service() {
                         }
                         smsManager.sendTextMessage(
                             phoneNumbers[message.indexOf(i)],
-                            null,
-                            i,
+                            null, i,
                             null,
                             null
                         )
                     }
-                }, 3000
-            )
+                },3000)
+            }else{
+                Toast.makeText(this, "Message is empty!", Toast.LENGTH_SHORT).show()
+                println("Message is empty!")
+                break
+            }
         }
+
         updateSmsStatus(phoneNumbers, message, smsId)
     }
 
@@ -263,10 +224,6 @@ class BackService : Service() {
         sharedPreferences = this.getSharedPreferences("ipAddress", 0)
         val queue = Volley.newRequestQueue(this)
         val url = "${ipLink}api/sms"
-        println("url: $url")
-        println("phoneNumbers: $phoneNumbers")
-        println("message: $message")
-        println("smsId: $smsId")
         val stringRequest = object : StringRequest(
             Method.PUT, url,
             { response ->
@@ -295,6 +252,7 @@ class BackService : Service() {
             }
         }
         queue.add(stringRequest)
+
     }
 
     private fun saveSendSms(
@@ -304,7 +262,6 @@ class BackService : Service() {
     ) {
         for (i in phoneNumbers) {
             val getMassage = sharedPreferences?.getString("smsHistory", "")
-            //println("getMassage: $getMassage")
             if (getMassage == null) {
                 val editor = sharedPreferences?.edit()
                 editor?.putString("smsHistory", message[phoneNumbers.indexOf(i)])
@@ -328,6 +285,8 @@ class BackService : Service() {
                 editor2?.apply()
             }
         }
+        mediaPlayer = MediaPlayer.create(this, R.raw.sound)
+        mediaPlayer?.start()
     }
 
     private fun saveSendSmsErr(
@@ -362,7 +321,6 @@ class BackService : Service() {
                 )
                 editor2?.apply()
             }
-            //smsId add to errSmsId
             val getErrSmsId = sharedPreferences?.getString("errSmsId", "")
             if (getErrSmsId == null) {
                 val editor3 = sharedPreferences?.edit()
@@ -374,6 +332,8 @@ class BackService : Service() {
                 editor3?.apply()
             }
         }
+        mediaPlayer = MediaPlayer.create(this, R.raw.sound)
+        mediaPlayer?.start()
     }
 
     override fun onDestroy() {
