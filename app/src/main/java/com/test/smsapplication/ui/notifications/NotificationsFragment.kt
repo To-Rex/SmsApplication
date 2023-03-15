@@ -43,11 +43,7 @@ class NotificationsFragment : Fragment() {
 
         getData()
         btnNatClear!!.setOnClickListener {
-            sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
-            val editor = sharedPreferences?.edit()
-            editor?.putString("smsHistory", "")
-            editor?.apply()
-            getData()
+            clearData()
         }
         btnNatUpdate!!.setOnClickListener {
             getData()
@@ -55,40 +51,28 @@ class NotificationsFragment : Fragment() {
         return view
     }
     private fun getData(){
-        listNatVIew!!.adapter = null
         phoneList.clear()
         messageList.clear()
-        val data = sharedPreferences?.getString("ipAddress", "")
-        var ipAddress = ""
-        if (data == null||data== ""||data==" ") {
-            Toast.makeText(activity, "Bunday Ip adress mavjud emas", Toast.LENGTH_SHORT).show()
-        }else{
-            println(data.toString())
-            for (i in data.split(",").indices) {
-                if (data.split(",")[i].contains("$1")) {
-                    ipAddress = data.split(",")[i].split("$1")[0]
-                    break
-                }else{
-                    ipAddress = data.split(",")[0].replace("$0","")
-                }
-            }
-            txtSetIpAdress?.text = ipAddress
-            val getPref = sharedPreferences?.getString("smsHistory", "")
-            if (getPref == null||getPref== ""||getPref==" ") {
-                Toast.makeText(activity, "Smslar tarixi bo'sh", Toast.LENGTH_SHORT).show()
-            }else{
-                val gson = Gson()
-                val data = gson.fromJson(getPref, DataClass::class.java)
-                for (i in data.data!!.indices) {
-                    phoneList.add(data.data!![i].tel!!)
-                    messageList.add(data.data!![i].zapros!!)
-                }
-                adapter = DashAdapter(activity!!, phoneList, messageList)
-                listNatVIew!!.adapter = adapter
-
-            }
-            println(getPref.toString())
+        sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
+        val getSms = sharedPreferences?.getString("smsHistory", "")?.replace(" ", "")
+        val getPhone = sharedPreferences?.getString("phoneHistory", "")?.replace(" ", "")
+        println("smsHistory: $getSms")
+        println("phoneHistory: $getPhone")
+        if (getSms!!.isEmpty() && getPhone!!.isEmpty()) {
+            Toast.makeText(activity, "No Data Found", Toast.LENGTH_SHORT).show()
+        } else {
+            val smsList = getSms.split(",")
+            val phoneList = getPhone!!.split(",")
+            adapter = DashAdapter(activity!!, phoneList, smsList)
+            listNatVIew?.adapter = adapter
         }
-
+    }
+    private fun clearData() {
+        sharedPreferences = activity?.getSharedPreferences("ipAddress", 0)
+        val editor = sharedPreferences?.edit()
+        editor?.putString("smsHistory", "")
+        editor?.putString("phoneHistory", "")
+        editor?.apply()
+        getData()
     }
 }

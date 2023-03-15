@@ -45,7 +45,7 @@ class SetAdapter(
             val dialog = android.app.AlertDialog.Builder(context)
             dialog.setIcon(android.R.drawable.ic_dialog_alert)
             dialog.setTitle("Bu Ip adresini faollashtirish yoki to'xtatish")
-            dialog.setMessage(itemList1[position])
+            dialog.setMessage(itemList1[position].replace("$0", "").replace("$1", ""))
             dialog.setPositiveButton("OK") { dialog, _ ->
                 val editor = context.getSharedPreferences("ipAddress", 0).edit()
                 val data = context.getSharedPreferences("ipAddress", 0).getString("ipAddress", "")

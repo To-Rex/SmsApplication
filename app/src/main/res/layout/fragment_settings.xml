@@ -10,29 +10,44 @@
         android:id="@+id/txtSetIpAdress"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_marginTop="20dp"
-        android:textSize="19sp"
+        android:gravity="center"
         android:text="@string/ip_address"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingStart="5dp"
+        android:paddingEnd="10dp"
+        android:textSize="19sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline10"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtSetPhone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="@string/telefon_raqam"
+        android:paddingStart="10dp"
+        android:paddingEnd="5dp"
+        android:textSize="19sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline10"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/ediSetIpAdress"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginStart="15dp"
         android:layout_marginTop="20dp"
-        android:textColor="@color/black"
         android:background="@drawable/edit_text_back"
         android:ems="10"
+        android:hint="@string/add_ip_address"
+        android:inputType="textPersonName"
         android:paddingStart="15dp"
         android:paddingEnd="15dp"
-        android:inputType="textPersonName"
-        android:hint="@string/add_ip_address"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toBottomOf="@+id/txtSetIpAdress"
         tools:ignore="Autofill" />
 
@@ -42,12 +57,12 @@
         android:layout_height="50dp"
         android:layout_marginEnd="15dp"
         android:background="@drawable/buttons_back"
+        android:contentDescription="TODO"
         android:src="@drawable/baseline_add"
         app:layout_constraintBottom_toBottomOf="@+id/ediSetIpAdress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="@+id/ediSetIpAdress"
-        android:contentDescription="TODO"
         tools:ignore="ContentDescription,HardcodedText" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -56,6 +71,53 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.82" />
+
+    <TextView
+        android:id="@+id/txtSetphoneId"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:background="@drawable/edit_text_back3"
+        android:gravity="center"
+        android:paddingStart="10dp"
+        android:paddingEnd="5dp"
+        android:text="@string/_998"
+        android:textColor="@color/black"
+        android:textSize="19sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ediSetPhone"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/ediSetPhone" />
+
+    <EditText
+        android:id="@+id/ediSetPhone"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/edit_text_back4"
+        android:ems="10"
+        android:hint="@string/telefon_raqam"
+        android:inputType="textPersonName"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintStart_toEndOf="@+id/txtSetphoneId"
+        app:layout_constraintTop_toBottomOf="@+id/ediSetIpAdress"
+        tools:ignore="Autofill,TextFields" />
+
+    <ImageView
+        android:id="@+id/btnSetAddPhone"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="15dp"
+        android:background="@drawable/buttons_back"
+        android:contentDescription="TODO"
+        android:src="@drawable/baseline_add"
+        app:layout_constraintBottom_toBottomOf="@+id/ediSetPhone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="@+id/ediSetPhone"
+        tools:ignore="ContentDescription,HardcodedText" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -67,7 +129,7 @@
         android:orientation="vertical"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/ediSetIpAdress">
+        app:layout_constraintTop_toBottomOf="@+id/ediSetPhone">
 
         <Switch
             android:id="@+id/setSwitch"
@@ -112,14 +174,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.04"/>
+        app:layout_constraintGuide_percent="0.04" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.96"/>
+        app:layout_constraintGuide_percent="0.96" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
