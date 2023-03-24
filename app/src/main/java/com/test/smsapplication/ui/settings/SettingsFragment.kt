@@ -17,7 +17,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.test.smsapplication.R
 import com.test.smsapplication.adapters.MyAdapterCallback
 import com.test.smsapplication.adapters.SetAdapter
-
 class SettingsFragment : Fragment() {
     var ediSetIpAdress: EditText? = null
     var ediSetPhone: EditText? = null
@@ -32,7 +31,6 @@ class SettingsFragment : Fragment() {
     var adapter: SetAdapter? = null
     var linkList = ArrayList<String>()
     var verList = ArrayList<String>()
-
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater,

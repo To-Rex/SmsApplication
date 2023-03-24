@@ -9,7 +9,6 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Vibrator
-import android.telephony.SmsManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -100,13 +99,13 @@ class HomeFragment : Fragment() {
                 ).show()
                 return@setOnClickListener
             }
-            activity?.startService(Intent(activity, BackService::class.java))
+            //activity?.startService(Intent(activity, BackService::class.java))
+            val Intents = Intent(activity, BackService::class.java)
+            Intents.putExtra("message", "1")
+            activity?.startService(Intents)
         }
         if (context?.let {
-                ContextCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.SEND_SMS
-                )
+                ContextCompat.checkSelfPermission(it, Manifest.permission.SEND_SMS)
             } != PackageManager.PERMISSION_GRANTED) {
             val alertDialog = AlertDialog.Builder(context)
             alertDialog.setTitle("Ruxsat")
@@ -133,7 +132,6 @@ class HomeFragment : Fragment() {
             alertDialog.setView(input)
             input.inputType = 2
             input.hint = "Smslar soni kiriting"
-            //edittext width 60% of screen width and height 100dp and background color white and corner radius 10dp
             input.width = (displayWidth / 100) * 60
             input.background = resources.getDrawable(R.drawable.edit_text_back)
 
@@ -161,7 +159,6 @@ class HomeFragment : Fragment() {
         getData()
         return view
     }
-
     private fun showDialog(title: String, message: String) {
         val alertDialog = AlertDialog.Builder(context)
         alertDialog.setCancelable(false)
@@ -211,16 +208,8 @@ class HomeFragment : Fragment() {
         var pageSize = 0
         //val url = "${ipAddress}api/sms/998$phone?page=0&size=20&flag=2"
         //https://api.teda.uz:7788/api/sms/status?page=0&size=20&employeePhone=%2B998977515747&status=2
-        val url = "${ipAddress}api/sms/status?page=0&size=20&employeePhone=%2B998$phone&status=2"
+        val url = "${ipAddress}api/sms/status?page=0&size=150&employeePhone=%2B998$phone&status=2"
         getResponse(url)
-        /*if(page == 1){
-            getResponse(url)
-        }else{
-            for (i in 1..page){
-                getResponse(url)
-                pageSize++
-            }
-        }*/
     }
 
     private fun getResponse(url: String) {
@@ -253,6 +242,10 @@ class HomeFragment : Fragment() {
                 swipeRefreshHome?.isRefreshing = false
             })
         queue.add(stringRequest)
+
+        val Intents = Intent(activity, BackService::class.java)
+        Intents.putExtra("message", "0")
+        activity?.startService(Intents)
     }
 
     @SuppressLint("SetTextI18n")
@@ -292,7 +285,7 @@ class HomeFragment : Fragment() {
         val queue = Volley.newRequestQueue(activity)
         println(ipAddress)
         //val url = "https://api.teda.uz:7788/api/sms/status?page=0&size=20&employeePhone=%2B998977515747&status=1"
-        val url = "${ipAddress}api/sms/status?page=0&size=20&employeePhone=%2B998$phone&status=1"
+        val url = "${ipAddress}api/sms/status?page=0&size=150&employeePhone=%2B998$phone&status=1"
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             { response ->

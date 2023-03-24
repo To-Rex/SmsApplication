@@ -41,6 +41,7 @@ class BackService : Service() {
     var ipLink = ""
     var phone = ""
     var url = ""
+    var messages = ""
     private var vibrator: Vibrator? = null
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -62,7 +63,6 @@ class BackService : Service() {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CounterWakeLock")
         wakeLock.acquire()
-
         sharedPreferences = this.getSharedPreferences("ipAddress", 0)
         val data = sharedPreferences?.getString("ipAddress", "")
         for (i in data?.split(",")?.indices!!) {
@@ -82,6 +82,7 @@ class BackService : Service() {
         if (smsLimit == "0" || smsLimit == " " || smsLimit == null) {
             Toast.makeText(this, "SMS limiti kiriting!", Toast.LENGTH_SHORT).show()
         }
+        messages = intent?.getStringExtra("message").toString()
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.SEND_SMS
@@ -97,7 +98,6 @@ class BackService : Service() {
                 "${ipLink}api/sms/status?page=$page&size=$size&employeePhone=%2B998$phone&status=2"
             getResponse(url)
         }
-
         /*handler.post(object : Runnable {
             override fun run() {
                 count++
@@ -107,7 +107,6 @@ class BackService : Service() {
                 handler.postDelayed(this, 2000)
             }
         })*/
-
         return START_STICKY
     }
 
@@ -125,17 +124,37 @@ class BackService : Service() {
                 { response ->
                     val gson = Gson()
                     val dataClass = gson.fromJson(response, DataClass::class.java)
-                    for (i in dataClass.data?.content?.indices!!) {
-                        if (smsLimit != "0") {
-                            phoneNumbers.add(dataClass.data?.content!![i].tel!!)
-                            message.add(dataClass.data?.content!![i].zapros!!)
-                            smsId.add(dataClass.data?.content!![i].id!!)
-                            smsLimit = (smsLimit!!.toInt() - 1).toString()
-                            if (smsLimit == "0") break
-                        } else {
-                            break
+
+                    println("messages: $messages")
+                    if (messages == "1") {
+                        for (i in dataClass.data?.content?.indices!!) {
+                            if (smsLimit != "0") {
+                                phoneNumbers.add(dataClass.data?.content!![i].tel!!)
+                                message.add(dataClass.data?.content!![i].zapros!!)
+                                smsId.add(dataClass.data?.content!![i].id!!)
+                                smsLimit = (smsLimit!!.toInt() - 1).toString()
+                                if (smsLimit == "0") break
+                            } else {
+                                break
+                            }
+                        }
+                    }else{
+                        for (i in dataClass.data?.content?.indices!!) {
+                            if (smsLimit != "0") {
+                                //if rezult = chek, pay, qarz
+                                if (dataClass.data?.content!![i].rezult == "chek" || dataClass.data?.content!![i].rezult == "pay" || dataClass.data?.content!![i].rezult == "qarz") {
+                                    phoneNumbers.add(dataClass.data?.content!![i].tel!!)
+                                    message.add(dataClass.data?.content!![i].zapros!!)
+                                    smsId.add(dataClass.data?.content!![i].id!!)
+                                    smsLimit = (smsLimit!!.toInt() - 1).toString()
+                                    if (smsLimit == "0") break
+                                }
+                            } else {
+                                break
+                            }
                         }
                     }
+
                     val getRes = gson.fromJson(response, DataClass::class.java)
                     totalElements = getRes.data?.numberOfElements!!
                     totalPages = getRes.data?.totalPages!!
@@ -163,7 +182,7 @@ class BackService : Service() {
         for (i in message) {
             println("Message: $i")
             println("Phone: ${phoneNumbers[message.indexOf(i)]}")
-            if (i.isNotEmpty() || i != " "|| i != null) {
+            if (i.isNotEmpty() || i != " " || i != null) {
                 Handler(Looper.getMainLooper()).postDelayed({
                     if (i.length > 140) {
                         val parts = smsManager.divideMessage(i)
@@ -205,8 +224,8 @@ class BackService : Service() {
                             null
                         )
                     }
-                },3000)
-            }else{
+                }, 3000)
+            } else {
                 Toast.makeText(this, "Message is empty!", Toast.LENGTH_SHORT).show()
                 println("Message is empty!")
                 break
@@ -254,7 +273,6 @@ class BackService : Service() {
         queue.add(stringRequest)
 
     }
-
     private fun saveSendSms(
         phoneNumbers: ArrayList<String>,
         message: ArrayList<String>,
